@@ -1,4 +1,4 @@
-GIDDYUP!
+# GIDDYUP!
 
 Does deploying your application seem like a bit too much of a chore?  Do you
 wish it wasn't so hard?  Well, with giddyup it can become just a tiny bit
@@ -65,43 +65,45 @@ parent of this directory which is considered to be the "root" of the entire
 application.  (Note: this doesn't *actually* have to be named `repo`; but
 it's best to keep a consistent convention, for the sake of sanity).
 * `shared`: All of your application's data which should persist between
-releases should be kept in here -- log files (if you want to keep them
-between releases), **definitely** your customers' uploaded assets -- all
-that sort of thing goes in here, and will be symlinked from your release.
+releases should be kept in here -- log files (if you want to keep the same
+log files between releases), **definitely** your customers' uploaded assets
+-- all that sort of thing goes in here, and should be symlinked from your
+release.  See the section "Shared data", below.
 * `releases`: This is where each individual release goes.  Each deployment
 of your application gets a directory of it's own in here, named after the
 current date/time at the time of deployment, in the format
 `YYYYMMDD-HHMMSS`.
 * `current`: A symlink to the currently running version of your application.
 
+
 ## Shared data
 
 Anything you need to be shared across deployments should live under the
 `shared` directory, and symlinks placed in your releases to point to the
-relevant data in `shared`.  To help thing along, you can set the
-`giddyup.sharedlist` config variable to point to a file in your releases. 
-This file is a list of symlinks that should be placed in your releases,
-pointing to locations within `shared`.
+relevant data in `shared`.  You share things in your deployments by calling
+the `share` helper function within your hook scripts.
+This function will take a relative path (relative to the root of your repo)
+and create a symlink into the same path within `shared`.
 
-For example, if you set `giddyup.sharedlist` to point to `config/shared`,
-and then placed the following into `config/shared`:
+For example, you might have a hook script that uses Bundler to setup your
+local gems.  Since you don't want to have to dick around reinstalling all
+your gems with every release, you want to share that bundle between
+releases.  Your hook script might look something like this:
 
-    log
-    vendor/bundle
-    public/uploads
+    . /path/to/giddyup/functions.sh
+    share vendor/bundle
+    cd "${RELEASE}"
+    bundle install --deployment
 
-Then whenever your app is deployed, giddyup will create the following
-symlinks (relative to the deployment root):
-
-    releases/<timestamp>/log -> shared/log
-    releases/<timestamp>/vendor/bundle -> shared/vendor/bundle
-    releases/<timestamp>/public/uploads -> shared/public/uploads
+This will create a symlink from `$ROOT/releases/<timestamp>/vendor/bundle`
+to `$ROOT/shared/vendor/bundle`, then run bundle in the new release to
+ensure that all your required gems are available.
 
 If a file or directory already exists in `releases/<timestamp>` that is
 supposed to be symlinked, we'll remove it before creating the symlink.  The
-directory structure in `shared` will mirror that of your releases; this
-improves simplicity and comprehensibility.  It really isn't worth
-customising; trust me.
+directory structure in `shared` will always mirror that of your releases
+when you use `share`; this improves simplicity and comprehensibility.  It
+really isn't worth customising; trust me.
 
 If a symlink destination doesn't exist already within `shared`, then we'll
 try to infer whether it's a file or directory from the type of the data
@@ -136,6 +138,7 @@ To put it another way, the following hooks are available:
   the new code.  In here you'd probably want to do database migrations,
   start your appserver, and take down your maintenance page.
 
+
 ## Running hooks
 
 Giddyup runs hooks by looking in the **newly deployed** version of your
@@ -146,6 +149,10 @@ there is a file named after the hook, and it is executable, then that file
 is executed.  If, on the other hand, there is a directory named after the
 hook, then all executable files in that directory are executed, in the
 lexical order of the names of the files.
+
+Each hook script is run as a separate process, and as such cannot effect the
+environment or working directory of giddyup itself or any other hook script.
+
 
 ## Hook environment
 
@@ -160,6 +167,22 @@ directory which the deployment git repository (and everything else) lives
 * `RELEASE` -- the canonical directory that contains the data in this
 release of the application.
 * `NEWREV` -- The SHA of the commit which is being deployed.
+
+The working directory of all hooks is the root of the deployment tree. 
+During the 'stop' hook, the `current` symlink will point to the previous
+running release of the application, while during the `start` hook the
+`current` symlink will point to the new release you're currently deploying.
+
+
+## Hook script helpers
+
+To help you make your hook scripts easier to write, there are some shell
+functions available to help you on your way.  To use them, merely add:
+
+    . /path/to/giddyup/functions.sh
+
+at the top of your hook script, and then call away to your heart's content.
+
 
 
 # Error handling
@@ -190,7 +213,9 @@ Available configuration variables are given below.
 
 Every Rack application needs to have an environment name to run in. 
 `giddyup.environment` specifies the name of the environment this app runs
-in.
+in.  Since this environment is specified per-repository, you can run several
+environments (say, uat, staging, and production) with the same in-repo
+deployment hooks, just by pushing to different remote repositories.
 
 
 ## `giddyup.hookdir`
@@ -214,12 +239,26 @@ you want to keep every release ever (not a good idea unless you've got one
 of those fancy new infinite-capacity hard drives).
 
 
-## `giddyup.sharedlist`
+# Frequently Answered Questions
 
-(**OPTIONAL**; default: no shared list)
+## What?  Is that all?
 
-This points to a file within your deployed codebase that contains a list of
-files and directories to symlink from your deployments into a directory
-called `shared` within the deployment tree.  See the section of this README
-called "Shared data", above, for more details of this mechanism and how it
-works.
+Yes, the main giddyup update hook script is quite minimal.  The aim here is
+to provide the necessary scaffolding upon which customised deployment
+processes can be implemented.
+
+To put it another way: yes, Giddyup is small and dumb.  You're supposed to
+provide the smarts in hooks.  If you have a general-purpose hook you'd like
+to share with others, please feel free to [send it to
+me](mailto:theshed+giddyup@hezmatt.org) and I'll include it in the examples.
+
+
+## I need moah hooks!
+
+Weeeeell... maybe you do, maybe you don't.  Remember that you can execute as
+many different hook scripts as you like, and in the order you specify.  For
+example, you might think you need a "pre-stop" hook, to do things that might
+take a while, before the application is stopped (to minimise downtime).  You
+don't actually need a separate hook in giddyup; all you need to do is move
+the hook script that actually stops your appservers to after the hook script
+that does whatever time-consuming task you have in mind.

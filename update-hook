@@ -41,8 +41,6 @@ HOOKDIR="${HOOKDIR:-config/hooks}"
 
 KEEP_RELEASES="$(git config --get giddyup.keepreleases || true)"
 
-SHAREDLIST="$(git config --get giddyup.sharedlist || true)"
-
 REPO="$(dirname $(cd $(dirname "$0"); pwd -P))"
 ROOT="$(dirname "${REPO}")"
 trap "rm -rf ${SCRATCH_REPO}" EXIT
@@ -66,25 +64,6 @@ cd "${RELEASE}"
 
 git --git-dir "${REPO}" archive --format=tar "${NEWREV}" | tar xf -
 
-echo $NEWREV >REVISION
-
-if [ -f "${SHAREDLIST}" ]; then
-	for shareditem in $(cat "${SHAREDLIST}"); do
-		if [ -d "$shareditem" ]; then
-			shareditemdir="y"
-		else
-			shareditemdir="n"
-		fi
-
-		rm -rf "$shareditem"
-
-		if [ "$shareditemdir" = "y" ]; then
-			mkdir -p "${ROOT}/shared/$shareditem"
-		else
-			mkdir -p "$(dirname "${ROOT}/shared/$shareditem")"
-		end
-
-		ln -s "${ROOT}/shared/$shareditem" "$shareditem"
 	done
 fi
 
