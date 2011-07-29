@@ -239,6 +239,14 @@ you want to keep every release ever (not a good idea unless you've got one
 of those fancy new infinite-capacity hard drives).
 
 
+## `giddyup.debug`
+
+(**OPTIONAL**; default: false)
+
+If you want to have far, far too much gory detail about what giddyup is
+doing, you can set this to true.
+
+
 # Frequently Answered Questions
 
 ## What?  Is that all?

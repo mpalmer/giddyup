@@ -34,6 +34,10 @@ function exec_hook_file() {
 	fi
 }
 
+if [ "$(git config --get giddyup.debug || true)" = "true" ]; then
+	set -x
+fi
+
 RACK_ENV="$(git config --get giddyup.environment)"
 
 HOOKDIR="$(git config --get giddyup.hookdir)"
