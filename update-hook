@@ -24,7 +24,7 @@ function run_hook() {
 function exec_hook_file() {
 	local hook_file="$1"
 
-	if [ -x "$f" ]; then
+	if [ -x "$hook_file" ]; then
 		/bin/env - PATH="${PATH}" 		\
 		           RACK_ENV="${RACK_ENV}"	\
 		           ROOT="${ROOT}"		\
