@@ -38,11 +38,11 @@ going after the deployment "low hanging fruit".
 5. Symlink the `update-hook` script in this distribution to `hooks/update`
    in the repo you created in step 3 (and make sure `update-hook` is
    executable)
-   > e.g. `chmod a+x update-hook; git cp update-hook
-   > appname/repo/hooks/update`
+   > e.g. `chmod a+x /path/to/giddyup/update-hook; ln -s
+   > /path/to/giddyup/update-hook /home/appuser/appname/repo/hooks/update`
 
-6. Add the necessary hooks to your application, as per the section "Hooks",
-   below.
+6. Add the necessary hooks to your application's local git repo to effect
+   proper deployment.
 
 7. Add the newly created git repo as a remote, then push to it:
    > e.g. `git remote add deploy appuser@example.com:appname/repo;
@@ -161,7 +161,7 @@ variables will be set:
 
 * `PATH` -- the same as the path of the Giddyup script itself.
 * `RACK_ENV` -- the environment specified by `giddyup.environment` (see
-"Configuration", below)
+"Configuration", below).
 * `ROOT` -- the directory that is the "root" of the entire deployment; the
 directory which the deployment git repository (and everything else) lives
 * `RELEASE` -- the canonical directory that contains the data in this
