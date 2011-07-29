@@ -25,12 +25,12 @@ function exec_hook_file() {
 	local hook_file="$1"
 
 	if [ -x "$hook_file" ]; then
-		/bin/env - PATH="${PATH}" 		\
-		           RACK_ENV="${RACK_ENV}"	\
-		           ROOT="${ROOT}"		\
-		           RELEASE="${RELEASE}"		\
-		           NEWREV="${NEWREV}"		\
-		           "$hook_file"
+		env - PATH="${PATH}"	 		\
+		      RACK_ENV="${RACK_ENV}"		\
+		      ROOT="${ROOT}"			\
+		      RELEASE="${RELEASE}"		\
+		      NEWREV="${NEWREV}"		\
+		      "$hook_file"
 	fi
 }
 
