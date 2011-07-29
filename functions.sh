@@ -1,3 +1,5 @@
+#!/bin/sh
+
 function share() {
 	local shareditem="$1"
 	local shareditemdir="?"
@@ -15,8 +17,8 @@ function share() {
 			mkdir -p "${ROOT}/shared/${shareditem}"
 		elif [ "$shareditemdir" = "n" ]; then
 			mkdir -p "$(dirname "${ROOT}/shared/${shareditem}")"
-		end
-	end
+		fi
+	fi
 	
 	ln -s "${ROOT}/shared/${shareditem}" "${RELEASE}/${shareditem}"
 }
