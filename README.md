@@ -15,6 +15,22 @@ deployments, then there's a good chance that Giddyup isn't for you.  We're
 going after the deployment "low hanging fruit".
 
 
+# Installation
+
+At this stage, giddyup is only available directly as a git repo.  There are
+no versioned releases, nor are there distribution packages available.  My
+recommendation is to create a clone of the [main giddyup
+repo](https://github.com/mpalmer/giddyup) somewhere (I suggest
+`/usr/local/lib/giddyup`) and then to update, just `git pull`.  You then
+have a fixed location to point your hook symlinks and inclusions of
+`functions.sh`.
+
+Eventually, when giddyup stabilises there will be distribution packages;
+they'll likely put everything into `/usr/lib/giddyup`, at which time you can
+just delete your git repo at `/usr/local/lib/giddyup` and symlink that
+location `/usr/lib/giddyup`, and nothing else will need to change.
+
+
 # Initial Setup
 
 1. Create a directory somewhere, as the user who will run the app,
