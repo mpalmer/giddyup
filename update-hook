@@ -34,16 +34,22 @@ function exec_hook_file() {
 	fi
 }
 
-if [ "$(git config --get giddyup.debug || true)" = "true" ]; then
+function get_config() {
+	local option="$1"
+	
+	git config --get giddyup.${option} || true
+}
+
+if [ "$(get_config debug)" = "true" ]; then
 	set -x
 fi
 
-RACK_ENV="$(git config --get giddyup.environment)"
+RACK_ENV="$(get_config environment)"
 
-HOOKDIR="$(git config --get giddyup.hookdir)"
+HOOKDIR="$(get_config hookdir)"
 HOOKDIR="${HOOKDIR:-config/hooks}"
 
-KEEP_RELEASES="$(git config --get giddyup.keepreleases || true)"
+KEEP_RELEASES="$(get_config keepreleases)"
 
 REPO="$(dirname $(cd $(dirname "$0"); pwd -P))"
 ROOT="$(dirname "${REPO}")"
