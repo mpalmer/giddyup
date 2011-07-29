@@ -76,12 +76,12 @@ git --git-dir "${REPO}" archive --format=tar "${NEWREV}" | tar xf -
 
 cd "${ROOT}"
 
-exec_hook stop
+run_hook stop
 
 rm -f current
 ln -s "${ROOT}/releases/${RELEASE_DATE}" current
 
-exec_hook start
+run_hook start
 
 # Tidy up old releases
 if [ "${KEEP_RELEASES}" != "0" ]; then
