@@ -74,9 +74,6 @@ cd "${RELEASE}"
 
 git --git-dir "${REPO}" archive --format=tar "${NEWREV}" | tar xf -
 
-	done
-fi
-
 cd "${ROOT}"
 
 exec_hook stop
