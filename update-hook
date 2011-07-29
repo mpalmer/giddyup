@@ -12,12 +12,12 @@ set -e
 function run_hook() {
 	local hook="$1"
 	
-	if [ -d "${RELEASE}/${hook}" ]; then
-		for f in "${RELEASE}/${hook}/*"; do
+	if [ -d "${RELEASE}/${HOOKDIR}" ]; then
+		for f in "${RELEASE}/${HOOKDIR}/${hook}/*"; do
 			exec_hook_file "$f"
 		done
 	else
-		exec_hook_file "${RELEASE}/${hook}"
+		exec_hook_file "${RELEASE}/${HOOKDIR}/${hook}"
 	fi
 }
 
