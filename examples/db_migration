@@ -8,5 +8,5 @@ tasks.
 # Run before the appservers are started
 
 cd ${RELEASE}
-rake production db:migrate
+rake ${APP_ENV} db:migrate
 

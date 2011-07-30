@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Automatically deploy a rack application by pushing updates to a git
+# Automatically deploy a web application by pushing updates to a git
 # repository.
 #
 # For information on usage of this hook, please see the README.md that came
@@ -26,7 +26,7 @@ function exec_hook_file() {
 
 	if [ -x "$hook_file" ]; then
 		env - PATH="${PATH}"	 		\
-		      RACK_ENV="${RACK_ENV}"		\
+		      APP_ENV="${APP_ENV}"		\
 		      ROOT="${ROOT}"			\
 		      RELEASE="${RELEASE}"		\
 		      NEWREV="${NEWREV}"		\
@@ -44,7 +44,7 @@ if [ "$(get_config debug)" = "true" ]; then
 	set -x
 fi
 
-RACK_ENV="$(get_config environment)"
+APP_ENV="$(get_config environment)"
 
 HOOKDIR="$(get_config hookdir)"
 HOOKDIR="${HOOKDIR:-config/hooks}"

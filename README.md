@@ -177,7 +177,7 @@ The environment of the hook is very minimal; only the following environment
 variables will be set:
 
 * `PATH` -- the same as the path of the Giddyup script itself.
-* `RACK_ENV` -- the environment specified by `giddyup.environment` (see
+* `APP_ENV` -- the environment specified by `giddyup.environment` (see
 "Configuration", below).
 * `ROOT` -- the directory that is the "root" of the entire deployment; the
 directory which the deployment git repository (and everything else) lives
@@ -218,21 +218,29 @@ rollback strategies, is planned.  Patches welcome.
 # Configuration
 
 Gidduyp is controlled by git repository configuration variables; these can
-either be set using `git config` in the deployment repository, or by editing
-the `config` file in the repository directly.
+either be set using `git config` in the deployment repository, or by
+directly editing the `config` file in the deployment repository.
 
 Available configuration variables are given below.
 
 
 ## `giddyup.environment`
 
-(**REQUIRED**)
+(**OPTIONAL**; default: none)
 
-Every Rack application needs to have an environment name to run in. 
-`giddyup.environment` specifies the name of the environment this app runs
-in.  Since this environment is specified per-repository, you can run several
-environments (say, uat, staging, and production) with the same in-repo
-deployment hooks, just by pushing to different remote repositories.
+Many web application frameworks have a concept of "environments"; that is,
+different sets of configuration parameters (like database credentials) that
+vary between instances of the application running with the same source code.
+
+Giddyup supports this paradigm with the use of the `giddyup.environment`
+variable.  If set, the value will be passed through to the `APP_ENV`
+environment variable in your hook scripts; this allows you to do slightly
+different things (like reload a different appserver, or assist in running
+your database migrations against a different database).  Since this
+environment is specified per-repository, you can run several environments
+(say, uat, staging, and production) with the same in-repo deployment hooks,
+just by pushing to different remote repositories (which have different
+settings for `giddyup.environment`, of course).
 
 
 ## `giddyup.hookdir`

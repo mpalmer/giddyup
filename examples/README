@@ -3,6 +3,11 @@ your application's giddyup deployment process.  Each one has some
 explanatory text, then the snippets you can cut-and-paste into your own
 deployment hooks.
 
-There is also a directory called `rackctl`, which contains the scripts I
-used to manage multiple rack applications with thin and daemontools.  The
-README in that directory contains more details.
+There is also a directory called `rackctl`, which contains the scripts I use
+on my own servers to manage multiple rack applications with thin and
+daemontools.  The README in that directory contains more details.
+
+I actively integrate example hook scripts that people contribute; a store of
+these hooks is important to demonstrate what is possible with giddyup.  If
+you have any hooks you'd like to share, please e-mail them to
+<theshed+giddyup@hezmatt.org>.
