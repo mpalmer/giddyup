@@ -1,0 +1,7 @@
+If you like to have a record of which git commit corresponds to a given
+release, you can just do it like this.
+
+###########
+# STOP HOOK
+
+echo $NEWREV >${RELEASE}/REVISION
