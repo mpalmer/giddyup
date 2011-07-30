@@ -9,11 +9,6 @@ how simple app deployment *can* be.  While we don't try to emulate all of
 Heroku's excellent infrastructure, giddyup does handle a small corner of
 that -- the ability to deploy your app with a simple 'git push'.
 
-Giddyup is not a full-featured deployment tool -- if you do multi-machine
-deployments, or you need to do excessively complicated things with your
-deployments, then there's a good chance that Giddyup isn't for you.  We're
-going after the deployment "low hanging fruit".
-
 
 # Installation
 
