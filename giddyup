@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -e
+
+DEST="$1"
+
+if [ -z "$DEST" ]; then
+	echo "Please specify a directory for the new application's root" >&2
+	exit 1
+fi
+
+if [ -e "$DEST" ]; then
+	echo "ERROR: Destination directory must not already exist" >&2
+	exit 1
+fi
+
+mkdir -p "${DEST}/repo"
+
+git init --bare "${DEST}/repo"
+
+HOOK="$(dirname $(readlink -f $0))/update-hook"
+ln -s "${HOOK}" "${DEST}/repo/hooks/update"

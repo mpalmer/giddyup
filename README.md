@@ -31,42 +31,36 @@ they'll likely put everything into `/usr/lib/giddyup`, at which time you can
 just delete your git repo at `/usr/local/lib/giddyup` and symlink that
 location `/usr/lib/giddyup`, and nothing else will need to change.
 
+Symlink the `giddyup` script to somewhere in your `PATH`; this will allow
+you to trivially setup new deployment destinations.  Do **not** *copy* the
+`giddyup` script; it relies on being in the same directory as `update-hook`
+in order to be able to find the hook script.
 
-# Initial Setup
 
-1. Create a directory somewhere, as the user who will run the app,
-   which will serve as the "root" of the whole application deployment.
-   > e.g. `mkdir /home/deployuser/appname`
+# Setting up new deployments
 
-2. Create a directory in the directory you made in step 2, named
-   'repo'.
-   > e.g. `mkdir /home/appuser/appname/repo`
+1. Run the `giddyup` script, passing it the location of the "root" of your
+   new deployment.  The script will create the basic directory structure and
+   symlink the update hook into the right place.
 
-3. Run git init --bare in the 'repo' directory you created in
-   step 3.
-   > e.g. `git init --bare /home/appuser/appname/repo`
-
-4. Set the git config variables in the config for the repo you
+2. Set the git config variables in the config for the repo you
    created in step 4 (see the section "Configuration" for the
    available variables)
+
    > e.g. `git config -f /home/appuser/appname/repo/config giddyup.environment
    > production`
 
-5. Symlink the `update-hook` script in this distribution to `hooks/update`
-   in the repo you created in step 3 (and make sure `update-hook` is
-   executable)
-   > e.g. `chmod a+x /path/to/giddyup/update-hook; ln -s
-   > /path/to/giddyup/update-hook /home/appuser/appname/repo/hooks/update`
-
-6. Add the necessary hooks to your application's local git repo to effect
+3. Add the necessary hooks to your application's local git repo to effect
    proper deployment.
 
-7. Add the newly created git repo as a remote, then push to it:
+4. Add the newly created git repo as a remote in your local working copy,
+   then push to that remote to make your initial deploy:
+
    > e.g. `git remote add deploy appuser@example.com:appname/repo;
    > git push deploy master:master`
 
-8. Configure your webserver to pass requests to the appserver, and you
-   should be good to go.
+5. Configure your webserver to pass requests to the appserver, and test that
+   everything is working properly.
 
 
 # Deployment tree structure
