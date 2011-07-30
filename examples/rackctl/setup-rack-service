@@ -1,0 +1,92 @@
+#!/bin/sh -e
+
+# Create the necessary directories, scripts and links to run a rack app (using
+# thin as the appserver) via daemontools.
+#
+
+usage() {
+	echo "Usage:"
+	echo
+	echo "  setup-rack-service <user> <port> <app> <environment>"
+	echo
+	echo "Creates a daemontools service named rack_<user>_<app>_<port>, running a thin in"
+	echo "the given environment (eg development/staging/production) for the app with a"
+	echo "base deploy dir of ~<user>/<app> listening on 127.0.0.1:<port>."
+}
+
+if [ "$#" != "4" ]; then
+	echo "Incorrect number of arguments"
+	echo
+	usage
+	exit 1
+fi
+
+# Do we have the right gems pre-installed?
+for gem in rack thin bundler; do
+	if ! gem list --local | grep -q "^$gem "; then
+		gem install $gem
+	fi
+done
+
+USER="$1"
+PORT="$2"
+APPDIR="$3"
+ENV="$4"
+
+if [[ "$APP" =~ / ]]; then
+	APP="$(basename "${APPDIR}")"
+else
+	APP="${APPDIR}"
+fi
+
+# Assumptions are the root of all evil, so /home/$USER is out of the
+# question...
+HOMEDIR=$(getent passwd $USER | cut -d : -f 6)
+
+if [ -z "$HOMEDIR" ]; then
+	echo "The user $USER doesn't seem to exist, or at least doesn't have a homedir.  WTF?"
+	exit 1
+fi
+
+APPDIR="$HOMEDIR/${APPDIR}/current"
+echo "Using $APPDIR as the application directory"
+
+LOGSDIR="$HOMEDIR/$APP/logs"
+mkdir -p $LOGSDIR
+chown $USER $LOGSDIR
+
+# And *now* we can create the service...
+SVCDIR="/var/lib/service/rack_${USER}_${APP}_${PORT}"
+
+mkdir -p "$SVCDIR"				\
+         "$SVCDIR/supervise"			\
+         "$SVCDIR/log"				\
+         "$SVCDIR/log/logs"			\
+         "$SVCDIR/log/supervise"
+
+# Put in a symlink so that user can get at the logs for the appserver
+ln -s $SVCDIR/log/logs $LOGSDIR/$PORT
+
+cat >$SVCDIR/run <<EOF
+#!/bin/sh -e
+
+exec 2>&1
+[ -e $APPDIR ] || exit 0
+cd $APPDIR
+exec setuidgid $USER rackup -s thin -r daemons -E $ENV -p $PORT -o 127.0.0.1 config.ru
+EOF
+
+cat >$SVCDIR/log/run <<EOF
+#!/bin/sh -e
+
+exec 2>&1
+cd logs
+exec setuidgid $USER multilog t .
+EOF
+
+chmod 0750 $SVCDIR/run $SVCDIR/log/run
+chown $USER $SVCDIR/log/logs
+chmod o-rw -R $SVCDIR
+
+# And finally, the almighty activation...
+ln -s $SVCDIR /etc/service/

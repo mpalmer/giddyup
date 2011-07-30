@@ -1,0 +1,14 @@
+If you use bundler for your gem management, it's fairly simple to keep the
+gems up to date when you deploy your application, like this:
+
+############
+# START HOOK
+
+# Run all this before you start your appservers
+
+. /usr/local/lib/giddyup/functions.sh
+
+share vendor/bundle
+
+cd $RELEASE
+bundle install --deployment

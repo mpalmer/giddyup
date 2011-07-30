@@ -1,0 +1,8 @@
+This directory contains a pile of example snippets for hooks you can use in
+your application's giddyup deployment process.  Each one has some
+explanatory text, then the snippets you can cut-and-paste into your own
+deployment hooks.
+
+There is also a directory called `rackctl`, which contains the scripts I
+used to manage multiple rack applications with thin and daemontools.  The
+README in that directory contains more details.

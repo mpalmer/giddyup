@@ -1,0 +1,202 @@
+#!/bin/sh -e
+
+# Start and stop Rack app servers (thins) from the command line.
+#
+# Usage:
+#
+#  rackctl <start|stop|restart> [app] [port numbers]
+#
+# By default, all thins for all apps for the user running the script will
+# have the specified action taken on them.  This is usually the smart move,
+# since most users should only have one application running (with different
+# users for different apps).
+#
+# If the user does have multiple apps, then the app can be chosen by specifying
+# it as the second argument.
+#
+# Finally, if you just want to give one thin a kick (because it's acting
+# funny, or has hung) then you can specify the port of the thin that
+# should be acted on.  This can be specified with an app (as a sanity
+# check), but shouldn't be required because only one thin can be on a
+# given port anyway.
+
+if [ "$#" = "0" ]; then
+	echo <<EOHELP >&2
+Manage rack appservers
+
+Usage: rackctl <start|stop|restart> [app|ports]
+EOHELP
+	exit 1
+fi
+
+if [ "$USER" != "root" ]; then
+	exec sudo $0 "$@"
+fi
+
+USER="$SUDO_USER"
+
+if [ -z "$(ls /etc/service/rack_${USER}_*_[0-9][0-9][0-9][0-9] 2>/dev/null)" ]; then
+	echo "No appservers found for $USER; exiting" >&2
+	exit 1
+fi
+
+ACTION="$1"
+shift
+
+if [ "$#" = "0" ]; then
+	APP="*"
+else
+	if ! [[ "$1" =~ [0-9]{4} ]]; then
+		APP="$1"
+		shift
+	else
+		APP="*"
+	fi
+fi
+
+if [ "$#" = "0" ]; then
+	for svcdir in /etc/service/rack_${USER}_${APP}_[0-9][0-9][0-9][0-9]; do
+		svc="$(basename $svcdir)"
+		port=${svc/rack_${USER}_${APP}_/}
+		PORTS="$PORTS $port"
+	done
+else
+	while [ "$#" != "0" ]; do
+		port=$1
+		shift
+		if [[ $port =~ [0-9][0-9][0-9][0-9] ]]; then
+			PORTS="$PORTS $port"
+		fi
+	done
+fi
+
+checksvc() {
+	local svcdir="$1"
+
+	svstat $svcdir | grep -q "^$svcdir: up "
+	return $?
+}
+
+start_app() {
+	local user="$1"
+	local app="$2"
+	local port="$3"
+	local svcdir="/etc/service/rack_${user}_${app}_${port}"
+
+	if [ ! -e $svcdir ]; then
+		echo "Unknown service directory: $svcdir"
+		return 1
+	fi
+	
+	if checksvc $svcdir; then
+		# Already running?
+		return 1
+	fi
+
+	svc -u $svcdir
+
+	if checksvc $svcdir; then
+		# Started quickly, that's good
+		return 0
+	fi
+
+	# Not a quick start, let's give it a bit...
+	for i in $(seq 0 5); do
+		sleep 1
+		if checksvc $svcdir; then
+			return 0
+		fi
+	done
+
+	return 1
+}
+
+stop_app() {
+	local user="$1"
+	local app="$2"
+	local port="$3"
+	local svcdir="/etc/service/rack_${user}_${app}_${port}"
+
+	if [ ! -e $svcdir ]; then
+		echo "Unknown service directory: $svcdir"
+		return 1
+	fi
+	
+	if ! checksvc $svcdir; then
+		# Already stopped?  That's fine
+		return 0
+	fi
+
+	svc -d $svcdir
+
+	if ! checksvc $svcdir; then
+		# Stopped quickly, that's good
+		return 0
+	fi
+
+	# Not a quick stop, wait for a while...
+	for i in $(seq 0 5); do
+		sleep 1
+		if ! checksvc $svcdir; then
+			return 0
+		fi
+	done
+
+	# Still not stopped?  Time to get brutal
+	svc -k $svcdir
+	sleep 1
+
+	if ! checksvc $svcdir; then
+		# Good, it died
+		return 0
+	else
+		# Grief, it's the undead
+		return 1
+	fi
+}
+
+case "$ACTION" in
+	"start")
+		echo -n "Starting Rack app $USER/$APP..."
+		for port in $PORTS; do
+			if start_app "$USER" "$APP" "$port"; then
+				echo -n " $port"
+			else
+				echo -n " $port [failed]"
+			fi
+		done
+		echo " done."
+		;;
+		
+	"stop")
+		echo -n "Stopping Rack app $USER/$APP..."
+		for port in $PORTS; do
+			if stop_app "$USER" "$APP" "$port"; then
+				echo -n " $port"
+			else
+				echo -n " $port [failed]"
+			fi
+		done
+		echo " done."
+		;;
+
+	"restart")
+		echo -n "Restarting Rack app $USER/$APP..."
+		for port in $PORTS; do
+			if stop_app "$USER" "$APP" "$port"; then
+				if start_app "$USER" "$APP" "$port"; then
+					echo -n " $port"
+				else
+					echo -n " $port [start failed]"
+				fi
+			else
+				echo -n " $port [stop failed]"
+			fi
+		done
+		echo " done."
+		;;
+
+	*)
+		echo "Usage: rackctl [start|stop|restart]"
+		;;
+esac

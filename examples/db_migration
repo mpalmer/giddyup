@@ -1,0 +1,12 @@
+Database migrations typically run from the new release before the app is
+started again.  This example is Railsish; adjust to suit your local rake
+tasks.
+
+############
+# START HOOK
+
+# Run before the appservers are started
+
+cd ${RELEASE}
+rake production db:migrate
+

@@ -1,0 +1,26 @@
+If you like to put up a maintenance page while you're doing deployments, the
+following will do it simply and easily.  Several assumptions are made:
+
+* Your maintenance page lives at public/system/maintenance.html in your Git
+  repo.  This is important, so that when the symlink moves from the existing
+  release to the new one, the site doesn't magically spring back to life
+* The maintenance page is "active" when it's at
+  public/system/maintenance.html, and we keep it at
+  public/system/maintenance.html.disabled when it's not in use.  Adjust
+  paths to suit your local circumstances.
+
+###########
+# STOP HOOK
+
+# Run this before you stop your appservers:
+
+mv current/public/system/maintenance.html.disabled current/public/system/maintenance.html || true
+
+
+############
+# START HOOK
+
+# Run this after you start your appservers, and preferably after you've
+# tested that they're actually ready to serve requests again
+
+mv current/public/system/maintenance.html current/public/system/maintenance.html.disabled
