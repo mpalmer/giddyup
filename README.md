@@ -47,8 +47,8 @@ in order to be able to find the hook script.
    created in step 4 (see the section "Configuration" for the
    available variables)
 
-   > e.g. `git config -f /home/appuser/appname/repo/config giddyup.environment
-   > production`
+    > e.g. `git config -f /home/appuser/appname/repo/config giddyup.environment
+    > production`
 
 3. Add the necessary hooks to your application's local git repo to effect
    proper deployment.
@@ -56,8 +56,8 @@ in order to be able to find the hook script.
 4. Add the newly created git repo as a remote in your local working copy,
    then push to that remote to make your initial deploy:
 
-   > e.g. `git remote add deploy appuser@example.com:appname/repo;
-   > git push deploy master:master`
+    > e.g. `git remote add deploy appuser@example.com:appname/repo;
+    > git push deploy master:master`
 
 5. Configure your webserver to pass requests to the appserver, and test that
    everything is working properly.
