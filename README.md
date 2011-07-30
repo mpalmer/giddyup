@@ -16,7 +16,7 @@ At this stage, giddyup is only available directly as a git repo.  There are
 no versioned releases, nor are there distribution packages available.  My
 recommendation is to create a clone of the [main giddyup
 repo](https://github.com/mpalmer/giddyup) somewhere (I suggest
-`/usr/local/lib/giddyup` if you've got root, and probably ~/giddyup
+`/usr/local/lib/giddyup` if you've got root, and probably `~/giddyup`
 otherwise) and then to update to newer giddyup functionality, just `git
 pull` in that clone.  You then have a fixed location to point your hook
 symlinks and inclusions of `functions.sh`.
