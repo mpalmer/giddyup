@@ -295,3 +295,12 @@ take a while, before the application is stopped (to minimise downtime).  You
 don't actually need a separate hook in giddyup; all you need to do is move
 the hook script that actually stops your appservers to after the hook script
 that does whatever time-consuming task you have in mind.
+
+
+## What's with the name?!?
+
+Take the phrase "git deployment", chop off most of "deployment" to "produce
+something like "gitd", say it as a single word a few times until it sounds
+like "gid", realise that it's really easy to add an "ee" sound to the end,
+then shout "yeehaw!" like an old time cowboy.  Waving of Stetsons is
+optional, but strongly encouraged.
