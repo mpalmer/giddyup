@@ -9,7 +9,7 @@
 
 set -e
 
-function run_hook() {
+run_hook() {
 	local hook="$1"
 	
 	if [ -d "${RELEASE}/${HOOKDIR}/${hook}" ]; then
@@ -21,7 +21,7 @@ function run_hook() {
 	fi
 }
 
-function exec_hook_file() {
+exec_hook_file() {
 	local hook_file="$1"
 
 	if [ -x "$hook_file" ]; then
@@ -34,7 +34,7 @@ function exec_hook_file() {
 	fi
 }
 
-function get_config() {
+get_config() {
 	local option="$1"
 	
 	git config --get giddyup.${option} || true
