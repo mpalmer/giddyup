@@ -288,8 +288,8 @@ that does whatever time-consuming task you have in mind.
 
 ## What's with the name?!?
 
-Take the phrase "git deployment", chop off most of "deployment" to "produce
-something like "gitd", say it as a single word a few times until the 't'
-kinda disappears and it sounds like "gid", realise that it's really easy to
-add an "ee" sound to the end of that, then shout "yeehaw!" like an old time
-cowboy.  Waving of Stetsons is optional, but strongly encouraged.
+Take the phrase "git deployment", chop off most of "deployment" to produce
+something like "gitde", say it as a single word a few times until the 't'
+kinda disappears and the 'e' lengthens so it sounds like "gidee", then shout
+"yeehaw!" like an old time cowboy.  Waving of Stetsons is optional, but
+strongly encouraged.
