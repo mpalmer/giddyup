@@ -1,6 +1,6 @@
 #!/bin/sh
 
-function share() {
+share() {
 	local shareditem="$1"
 	local shareditemdir="?"
 	
