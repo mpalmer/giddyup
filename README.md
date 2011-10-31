@@ -39,7 +39,7 @@ in order to be able to find the hook script.
    symlink the update hook into the right place.
 
 2. Set the git config variables in the config for the repo you
-   created in step 4 (see the section "Configuration" for the
+   created in step 1 (see the section "Configuration" for the
    available variables)
 
     > e.g. `git config -f /home/appuser/appname/repo/config giddyup.environment
