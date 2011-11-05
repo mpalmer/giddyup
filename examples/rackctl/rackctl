@@ -1,4 +1,6 @@
-#!/bin/sh -e
+#!/bin/bash
+
+set -e
 
 # Start and stop Rack app servers (thins) from the command line.
 #
