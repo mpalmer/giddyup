@@ -13,7 +13,7 @@ run_hook() {
 	local hook="$1"
 	
 	if [ -d "${RELEASE}/${HOOKDIR}/${hook}" ]; then
-		for f in "${RELEASE}/${HOOKDIR}/${hook}/*"; do
+		for f in "${RELEASE}/${HOOKDIR}/${hook}/"*; do
 			exec_hook_file "$f"
 		done
 	else
