@@ -30,6 +30,7 @@ exec_hook_file() {
 		      ROOT="${ROOT}"			\
 		      RELEASE="${RELEASE}"		\
 		      NEWREV="${NEWREV}"		\
+		      OLDREV="${OLDREV}"		\
 		      "$hook_file"
 	fi
 }
