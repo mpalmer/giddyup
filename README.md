@@ -172,7 +172,8 @@ variables will be set:
 directory which the deployment git repository (and everything else) lives
 * `RELEASE` -- the canonical directory that contains the data in this
 release of the application.
-* `NEWREV` -- The SHA of the commit which is being deployed.
+* `NEWREV` -- The SHA of the commit being deployed.
+* `OLDREV` -- The SHA of the commit being replaced.
 
 The working directory of all hooks is the root of the deployment tree. 
 During the 'stop' hook, the `current` symlink will point to the previous
