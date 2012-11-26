@@ -24,6 +24,10 @@ run_hook() {
 exec_hook_file() {
 	local hook_file="$1"
 
+	if [ "${AUTOCHMODHOOKS}" = "true" ]; then
+		chmod +x $hook_file
+	fi
+
 	if [ -x "$hook_file" ]; then
 		env - PATH="${PATH}"	 		\
 		      APP_ENV="${APP_ENV}"		\
@@ -32,6 +36,8 @@ exec_hook_file() {
 		      NEWREV="${NEWREV}"		\
 		      OLDREV="${OLDREV}"		\
 		      "$hook_file"
+	else
+		echo "WARNING: file $hook_file does not have executable permissions. You may want to enable giddyup.autochmodhooks config" >&2
 	fi
 }
 
@@ -46,6 +52,8 @@ if [ "$(get_config debug)" = "true" ]; then
 fi
 
 APP_ENV="$(get_config environment)"
+
+AUTOCHMODHOOKS="$(get_config autochmodhooks)"
 
 HOOKDIR="$(get_config hookdir)"
 HOOKDIR="${HOOKDIR:-config/hooks}"
