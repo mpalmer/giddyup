@@ -24,7 +24,7 @@ run_hook() {
 exec_hook_file() {
 	local hook_file="$1"
 
-	if [ "$(get_config autochmod)" = "true" ]; then
+	if [ "$(get_config autochmodhooks)" = "true" ]; then
 		chmod -x $hook_file
 	fi
 
@@ -36,6 +36,8 @@ exec_hook_file() {
 		      NEWREV="${NEWREV}"		\
 		      OLDREV="${OLDREV}"		\
 		      "$hook_file"
+	else
+		echo "WARNING: file $hook_file does not have executable permissions. You may want to enable giddy.autochmodhooks config" >&2
 	fi
 }
 

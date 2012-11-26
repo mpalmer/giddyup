@@ -262,6 +262,13 @@ If you want to have far, far too much gory detail about what giddyup is
 doing, you can set this to true.
 
 
+## `giddyup.autochmodhooks`
+
+(**OPTIONAL**; default: false)
+
+Sometimes the hook files found in `giddyup.hookdir` (e.g. in `config/hooks/`) are not executable by default. This can be due to a range of issues. This configuration forces the file to be chmod'ed to be executable before we execute it.
+
+
 # Frequently Answered Questions
 
 ## What?  Is that all?
