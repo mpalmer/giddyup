@@ -24,6 +24,10 @@ run_hook() {
 exec_hook_file() {
 	local hook_file="$1"
 
+	if [ "$(get_config autochmod)" = "true" ]; then
+		chmod -x $hook_file
+	fi
+
 	if [ -x "$hook_file" ]; then
 		env - PATH="${PATH}"	 		\
 		      APP_ENV="${APP_ENV}"		\
