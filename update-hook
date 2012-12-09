@@ -100,3 +100,7 @@ if [ "${KEEP_RELEASES}" != "0" ]; then
 	cd "${ROOT}/releases"
 	ls | sort -r | tail -n +$((${KEEP_RELEASES:-5}+1)) | xargs rm -rf
 fi
+
+cat <<EOF >&2
+SUCCESS: Repository was successfully deployed.
+EOF
