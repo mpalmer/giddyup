@@ -37,7 +37,10 @@ exec_hook_file() {
 		      OLDREV="${OLDREV}"		\
 		      "$hook_file"
 	else
-		echo "WARNING: file $hook_file does not have executable permissions. You may want to enable giddyup.autochmodhooks config" >&2
+		cat <<EOF >&2
+WARNING: file $hook_file does not have executable permissions.
+You may want to enable giddyup.autochmodhooks.
+EOF
 	fi
 }
 

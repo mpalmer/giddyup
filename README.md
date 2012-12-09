@@ -266,7 +266,10 @@ doing, you can set this to true.
 
 (**OPTIONAL**; default: false)
 
-Sometimes the hook files found in `giddyup.hookdir` (e.g. in `config/hooks/`) are not executable by default. This can be due to a range of issues. This configuration forces the file to be chmod'ed to be executable before we execute it.
+Sometimes the hook files found in `giddyup.hookdir` (e.g. in
+`config/hooks/`) are not marked as executable in the repository.  Setting
+`giddyup.autochmodhooks` to `true` will cause giddyup to set the executable
+bit itself before running the hook script.
 
 
 # Frequently Answered Questions
