@@ -72,8 +72,8 @@ OLDREV="$2"
 NEWREV="$3"
 
 if [ "$REF" != "refs/heads/master" ]; then
-	echo "ERROR: Can only push to master" >&2
-	exit 69
+	echo "NOTE: Only master branch gets deployed." >&2
+	exit 0
 fi
 
 RELEASE_DATE="$(date +%Y%m%d-%H%M%S)"
