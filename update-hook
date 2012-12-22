@@ -72,8 +72,11 @@ REF="$1"
 OLDREV="$2"
 NEWREV="$3"
 
-if [ "$REF" != "refs/heads/master" && "${ALLOW_OTHER_BRANCHES}" = "true" ]; then
-	echo "NOTE: Only master branch gets deployed." >&2
+if [ "$REF" != "refs/heads/master" ] && [ "${ALLOW_OTHER_BRANCHES}" = "true" ]; then
+	cat <<EOF >&2
+NOTE: You're pushing to a non-master branch.
+Only master branch gets deployed.
+EOF
 	exit 0
 elif [ "$REF" != "refs/heads/master" ]; then
     echo "ERROR: Can only push to master" >&2
