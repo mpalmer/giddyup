@@ -57,6 +57,7 @@ fi
 APP_ENV="$(get_config environment)"
 
 AUTOCHMODHOOKS="$(get_config autochmodhooks)"
+ALLOW_OTHER_BRANCHES="$(get_config allowotherbranches)"
 
 HOOKDIR="$(get_config hookdir)"
 HOOKDIR="${HOOKDIR:-config/hooks}"
@@ -71,9 +72,12 @@ REF="$1"
 OLDREV="$2"
 NEWREV="$3"
 
-if [ "$REF" != "refs/heads/master" ]; then
+if [ "$REF" != "refs/heads/master" && "${ALLOW_OTHER_BRANCHES}" = "true" ]; then
 	echo "NOTE: Only master branch gets deployed." >&2
 	exit 0
+elif [ "$REF" != "refs/heads/master" ]; then
+    echo "ERROR: Can only push to master" >&2
+	exit 69
 fi
 
 RELEASE_DATE="$(date +%Y%m%d-%H%M%S)"
