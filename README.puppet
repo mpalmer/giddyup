@@ -1,0 +1,40 @@
+# Giddyup!
+
+Giddyup is a git-based software deployment tool.  See
+http://theshed.hezmatt.org/giddyup for more info.
+
+This is a basic module to install giddyup and provide you the ability to
+create new giddyup environments.
+
+
+## Usage
+
+To setup a giddyup environment to deploy to, use the giddyup
+type, like this:
+
+    giddyup { "/some/base/directory":
+        environment => "production",
+        hookdir => "config/hooks",
+        keepreleases => "5",
+        debug => "false",
+        user => "someone"
+    }
+
+The namevar is the directory to be giddyupified; any giddyup configuration
+variable is allowed as an attribute.  The only other attribute allowed is
+'user', which specifies the user that the deployment tree will be owned by.
+
+There is nothing else to it.
+
+
+## Dependencies
+
+This module depends on the 'git' module to install git so we can configure
+the giddyup deployment environment, and also because it's a bit hard to use
+git without having git installed.
+
+
+## Compatibility
+
+Should be fairly distribution-agnostic.  Only tested on Debian Squeeze so
+far.
