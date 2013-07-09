@@ -57,6 +57,7 @@ fi
 APP_ENV="$(get_config environment)"
 
 AUTOCHMODHOOKS="$(get_config autochmodhooks)"
+ALLOW_OTHER_BRANCHES="$(get_config allowotherbranches)"
 
 HOOKDIR="$(get_config hookdir)"
 HOOKDIR="${HOOKDIR:-config/hooks}"
@@ -71,8 +72,14 @@ REF="$1"
 OLDREV="$2"
 NEWREV="$3"
 
-if [ "$REF" != "refs/heads/master" ]; then
-	echo "ERROR: Can only push to master" >&2
+if [ "$REF" != "refs/heads/master" ] && [ "${ALLOW_OTHER_BRANCHES}" = "true" ]; then
+	cat <<EOF >&2
+NOTE: You're pushing to a non-master branch.
+Only master branch gets deployed.
+EOF
+	exit 0
+elif [ "$REF" != "refs/heads/master" ]; then
+    echo "ERROR: Can only push to master" >&2
 	exit 69
 fi
 
@@ -100,3 +107,7 @@ if [ "${KEEP_RELEASES}" != "0" ]; then
 	cd "${ROOT}/releases"
 	ls | sort -r | tail -n +$((${KEEP_RELEASES:-5}+1)) | xargs rm -rf
 fi
+
+cat <<EOF >&2
+SUCCESS: Repository was successfully deployed.
+EOF

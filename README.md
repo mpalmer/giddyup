@@ -271,6 +271,16 @@ Sometimes the hook files found in `giddyup.hookdir` (e.g. in
 `giddyup.autochmodhooks` to `true` will cause giddyup to set the executable
 bit itself before running the hook script.
 
+## `giddyup.allowotherbranches`
+
+(**OPTIONAL**; default: false)
+
+By default, giddyup does not allow pushing to non-master branches as the
+purpose of giddyup is only for deployment. However, in some cases, pushing
+to other branches makes sense especially if the Git repository is used as
+the main repo. In which case, master can be used to deploy and other branches
+are development branches and aren't deployed until it is merged. This option
+if set to true allows for that use case.
 
 # Frequently Answered Questions
 
