@@ -9,63 +9,23 @@
 
 set -e
 
-run_hook() {
-	local hook="$1"
-	
-	if [ -d "${RELEASE}/${HOOKDIR}/${hook}" ]; then
-		for f in "${RELEASE}/${HOOKDIR}/${hook}/"*; do
-			exec_hook_file "$f"
-		done
-	else
-		exec_hook_file "${RELEASE}/${HOOKDIR}/${hook}"
-	fi
-}
+. "$(dirname $(readlink -f $0))/functions.sh"
 
-exec_hook_file() {
-	local hook_file="$1"
+REPO="$(dirname $(cd $(dirname "$0"); pwd -P))"
+ROOT="$(dirname "${REPO}")"
 
-	if [ "${AUTOCHMODHOOKS}" = "true" ]; then
-		chmod +x $hook_file
-	fi
-
-	if [ -x "$hook_file" ]; then
-		env - PATH="${PATH}"	 		\
-		      APP_ENV="${APP_ENV}"		\
-		      ROOT="${ROOT}"			\
-		      RELEASE="${RELEASE}"		\
-		      NEWREV="${NEWREV}"		\
-		      OLDREV="${OLDREV}"		\
-		      "$hook_file"
-	else
-		cat <<EOF >&2
-WARNING: file $hook_file does not have executable permissions.
-You may want to enable giddyup.autochmodhooks.
-EOF
-	fi
-}
-
+# Git-specific stuff starts here
 get_config() {
 	local option="$1"
 	
-	git config --get giddyup.${option} || true
+	git config --file "${REPO}/config" --get giddyup.${option} || true
 }
 
 if [ "$(get_config debug)" = "true" ]; then
 	set -x
 fi
 
-APP_ENV="$(get_config environment)"
-
-AUTOCHMODHOOKS="$(get_config autochmodhooks)"
-
-HOOKDIR="$(get_config hookdir)"
-HOOKDIR="${HOOKDIR:-config/hooks}"
-
-KEEP_RELEASES="$(get_config keepreleases)"
-
-REPO="$(dirname $(cd $(dirname "$0"); pwd -P))"
-ROOT="$(dirname "${REPO}")"
-trap "rm -rf ${SCRATCH_REPO}" EXIT
+init_env
 
 REF="$1"
 OLDREV="$2"
@@ -73,14 +33,8 @@ NEWREV="$3"
 
 if [ "$REF" != "refs/heads/master" ]; then
 	echo "ERROR: Can only push to master" >&2
-	exit 69
+	exit 1
 fi
-
-RELEASE_DATE="$(date +%Y%m%d-%H%M%S)"
-RELEASE="${ROOT}/releases/${RELEASE_DATE}"
-
-mkdir -p "${ROOT}/shared"
-mkdir -p "${RELEASE}"
 
 cd "${RELEASE}"
 
@@ -88,15 +42,6 @@ git --git-dir "${REPO}" archive --format=tar "${NEWREV}" | tar xf -
 
 cd "${ROOT}"
 
-run_hook stop
+# End git-specific stuff
 
-rm -f current
-ln -s "${ROOT}/releases/${RELEASE_DATE}" current
-
-run_hook start
-
-# Tidy up old releases
-if [ "${KEEP_RELEASES}" != "0" ]; then
-	cd "${ROOT}/releases"
-	ls | sort -r | tail -n +$((${KEEP_RELEASES:-5}+1)) | xargs rm -rf
-fi
+cycle_release

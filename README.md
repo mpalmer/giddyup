@@ -65,20 +65,24 @@ directory, that contains (hopefully) everything related to your application.
 The structure is as follows:
 
 * `repo`: This is the repository to which git pushes are made, and within
-which the Giddyup hook script is placed.  It must be a "bare" git repo
-(because otherwise Git gets ridiculously confused and annoyed) and it is the
-parent of this directory which is considered to be the "root" of the entire
-application.  (Note: this doesn't *actually* have to be named `repo`; but
-it's best to keep a consistent convention, for the sake of sanity).
+  which the Giddyup hook script is placed.  It must be a "bare" git repo
+  (because otherwise Git gets ridiculously confused and annoyed) and it is
+  the parent of this directory which is considered to be the "root" of the
+  entire application.  (Note: this doesn't *actually* have to be named
+  `repo`; but it's best to keep a consistent convention, for the sake of
+  sanity).
+
 * `shared`: All of your application's data which should persist between
-releases should be kept in here -- log files (if you want to keep the same
-log files between releases), **definitely** your customers' uploaded assets
--- all that sort of thing goes in here, and should be symlinked from your
-release.  See the section "Shared data", below.
+  releases should be kept in here -- log files (if you want to keep the same
+  log files between releases), **definitely** your customers' uploaded assets
+  -- all that sort of thing goes in here, and should be symlinked from your
+  release.  See the section "Shared data", below.
+
 * `releases`: This is where each individual release goes.  Each deployment
-of your application gets a directory of it's own in here, named after the
-current date/time at the time of deployment, in the format
-`YYYYMMDD-HHMMSS`.
+  of your application gets a directory of it's own in here, named after the
+  current date/time at the time of deployment, in the format
+  `YYYYMMDD-HHMMSS`.
+
 * `current`: A symlink to the currently running version of your application.
 
 
@@ -87,9 +91,9 @@ current date/time at the time of deployment, in the format
 Anything you need to be shared across deployments should live under the
 `shared` directory, and symlinks placed in your releases to point to the
 relevant data in `shared`.  You share things in your deployments by calling
-the `share` helper function within your hook scripts.
-This function will take a relative path (relative to the root of your repo)
-and create a symlink into the same path within `shared`.
+the `share` helper function within your hook scripts.  This function will
+take a relative path (relative to the root of your repo) and create a
+symlink into the same path within `shared`.
 
 For example, you might have a hook script that uses Bundler to setup your
 local gems.  Since you don't want to have to dick around reinstalling all
@@ -108,13 +112,12 @@ ensure that all your required gems are available.
 If a file or directory already exists in `releases/<timestamp>` that is
 supposed to be symlinked, we'll remove it before creating the symlink.  The
 directory structure in `shared` will always mirror that of your releases
-when you use `share`; this improves simplicity and comprehensibility.  It
-really isn't worth customising; trust me.
+when you use `share`; this improves simplicity and comprehensibility.
 
 If a symlink destination doesn't exist already within `shared`, then we'll
-try to infer whether it's a file or directory from the type of the data
-already existent in the deployed code.  Leading directory components will be
-created in `shared` automatically, as well.
+copy the source content in your release (if it exists) into `shared`. 
+Leading directory components will be created in `shared` automatically, as
+well.
 
 
 # Hooks
@@ -140,6 +143,7 @@ To put it another way, the following hooks are available:
   idea of the "current" release still points to the currently running code. 
   You'll probably want to do whatever's required to stop your appserver from
   running in this hook, run bundler, and perhaps put up a maintenance page.
+
 * **start**: Run after the "current" symlink has been changed to point to
   the new code.  In here you'd probably want to do database migrations,
   start your appserver, and take down your maintenance page.
@@ -147,14 +151,23 @@ To put it another way, the following hooks are available:
 
 ## Running hooks
 
-Giddyup runs hooks by looking in the **newly deployed** version of your
-application, in the location specified by the `giddyup.hookdir` git config
-variable (see "Configuration", below).  It is looking for files or
-directories that match the name of the hook (`start`, `stop`, etc).  If
-there is a file named after the hook, and it is executable, then that file
-is executed.  If, on the other hand, there is a directory named after the
-hook, then all executable files in that directory are executed, in the
-lexical order of the names of the files.
+Giddyup always runs hooks from the **newly deployed** version of your
+codebase (so that if you happened to push a deploy with a dodgy `stop` hook,
+you can recover from it by pushing a fixed version).  It looks for hooks in
+the location specified by the `giddyup.hookdir` git config variable (see
+"Configuration", below).
+
+It is looking for files or directories that match the name of the hook
+(`start`, `stop`, etc).  If there is a file named after the hook, and it is
+executable, then that file is executed.  If, on the other hand, there is a
+directory named after the hook, then all executable files in that directory
+are executed, in the lexical order of the names of the files.
+
+If you really, *really* need to be able to run hook files that aren't
+already executable (I don't know why; git stores executable bits just fine)
+then you can set the `autochmodhooks` config variable; this will have the
+effect of making *every* file in your hook directories (if you're using
+them) a hook script.  So don't combine this config option with a `README`...
 
 Each hook script is run as a separate process, and as such cannot effect the
 environment or working directory of giddyup itself or any other hook script.
