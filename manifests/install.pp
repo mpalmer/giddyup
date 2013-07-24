@@ -15,5 +15,7 @@ class giddyup::install {
 		"/usr/local/lib/giddyup/functions.sh":
 			source => "puppet:///modules/giddyup/functions.sh",
 			mode => 0444;
+		"/usr/local/bin/giddyup":
+			ensure => "/usr/local/lib/giddyup/giddyup";
 	}
 }
