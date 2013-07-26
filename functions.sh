@@ -72,7 +72,7 @@ share() {
 		rm -rf "$src"
 	fi
 
-	ln -sf "$src" "$dst"
+	ln -sf "$dst" "$src"
 }
 
 # Execute the specified hook.
