@@ -187,6 +187,7 @@ directory which the deployment git repository (and everything else) lives
 release of the application.
 * `NEWREV` -- The SHA of the commit being deployed.
 * `OLDREV` -- The SHA of the commit being replaced.
+* `FUNCS` -- the path to `functions.sh` used by current installation
 
 The working directory of all hooks is the root of the deployment tree. 
 During the 'stop' hook, the `current` symlink will point to the previous
@@ -200,6 +201,10 @@ To help you make your hook scripts easier to write, there are some shell
 functions available to help you on your way.  To use them, merely add:
 
     . /path/to/giddyup/functions.sh
+
+or
+
+    . $FUNCS
 
 at the top of your hook script, and then call away to your heart's content.
 

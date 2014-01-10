@@ -9,7 +9,9 @@
 
 set -e
 
-. "$(dirname $(readlink -f $0))/functions.sh"
+# Consistent sourcing location for hooks deployed in multiple environments.
+FUNCS="$(dirname $(readlink -f $0))/functions.sh"
+. $FUNCS
 
 REPO="$(dirname $(cd $(dirname "$0"); pwd -P))"
 ROOT="$(dirname "${REPO}")"

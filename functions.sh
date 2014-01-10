@@ -36,7 +36,7 @@
 #   creates it.
 #
 # * If the source *does* exist, but the destination does not, then the
-#   source will be moved to the destination before the symlink is created. 
+#   source will be moved to the destination before the symlink is created.
 #   This allows you to ship a default dataset in your application bundle,
 #   safe in the knowledge that future updates won't overwrite it once it's
 #   in the `shared` tree.
@@ -54,20 +54,20 @@ share() {
 	local dst="${ROOT}/shared/${shareditem}"
 	local srcparent="$(dirname "$src")"
 	local dstparent="$(dirname "$dst")"
-	
+
 	if [ ! -d "$dstparent" ]; then
 		mkdir -p "$dstparent"
 	fi
-	
+
 	if [ ! -d "$srcparent" ]; then
 		mkdir -p "$srcparent"
 	fi
-	
+
 	if [ -e "$src" ]; then
 		if [ ! -e "$dst" ]; then
 			mv "$src" "$dst"
 		fi
-		
+
 		# Yes, this'll be a NOOP if we've just done the above
 		rm -rf "$src"
 	fi
@@ -91,7 +91,7 @@ run_hook() {
 	local hook="$1"
 	local hookdir="$(get_config hookdir)"
 	hookdir="${hookdir:-config/hooks}"
-	
+
 	if [ -d "${RELEASE}/${hookdir}/${hook}" ]; then
 		for f in "${RELEASE}/${hookdir}/${hook}/"*; do
 			exec_hook_file "$f"
@@ -125,6 +125,7 @@ exec_hook_file() {
 		      RELEASE="$RELEASE"              \
 		      NEWREV="$NEWREV"                \
 		      OLDREV="$OLDREV"                \
+		      FUNCS="${FUNCS}"                \
 		      "$hook_file"
 	elif [ -e "$hook_file" ]; then
 		cat <<EOF >&2
