@@ -124,6 +124,7 @@ exec_hook_file() {
 		      RELEASE="${RELEASE}"		\
 		      NEWREV="${NEWREV}"		\
 		      OLDREV="${OLDREV}"		\
+		      FUNCS="${FUNCS}"			\
 		      "$hook_file"
 	else
 		cat <<EOF >&2
