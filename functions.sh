@@ -118,7 +118,7 @@ exec_hook_file() {
 	fi
 
 	if [ -x "$hook_file" ]; then
-		env - PATH="${PATH}"	 		\
+		env   PATH="${PATH}"	 		\
 		      APP_ENV="${APP_ENV}"		\
 		      ROOT="${ROOT}"			\
 		      RELEASE="${RELEASE}"		\
