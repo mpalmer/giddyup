@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'giddyup/git_deploy'
+
+Giddyup::GitDeploy.new(ARGV).run
