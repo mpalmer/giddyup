@@ -119,11 +119,13 @@ class Giddyup::GitDeploy
 		begin
 			s = @command.run_command_stdout(cmd)
 		rescue Giddyup::CommandWrapper::CommandFailed => e
-			if !multi and e.status.exitstatus == 2
+			if e.status.exitstatus == 2 and !multi
 				raise RuntimeError,
 				      "Multiple values found for a single-value parameter environment.#{@env}.#{item}"
-			end
-			if e.status.exitstatus != 2
+			elsif e.status.exitstatus == 1
+				# This means "nothing found", which we're cool with
+				return multi ? [] : ""
+			else
 				raise RuntimeError,
 				      "Failed to get config parameter environment.#{@env}.#{item}"
 			end
