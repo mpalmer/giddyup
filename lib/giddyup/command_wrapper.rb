@@ -37,6 +37,8 @@ class Giddyup::CommandWrapper
 	#
 	def self.run_command(cmd)
 		output = []
+		rv = nil
+
 		Open3.popen3(cmd) do |stdin, stdout, stderr, thr|
 			# We don't want to talk *to* you
 			stdin.close
@@ -64,10 +66,12 @@ class Giddyup::CommandWrapper
 					end
 				end
 			end
+
+			rv = thr.value
 		end
 
-		if $?.exitstatus != 0
-			raise CommandFailed.new($?, output)
+		if rv.exitstatus != 0
+			raise CommandFailed.new(rv, output)
 		end
 
 		output
