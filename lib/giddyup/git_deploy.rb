@@ -56,7 +56,7 @@ class Giddyup::GitDeploy
 		do_push
 		do_trigger
 
-		@stdout.printf "Completed deployment in %.2f seconds.", (Time.now - start_time).to_f
+		@stdout.printf "Completed deployment in %.2f seconds.\n", (Time.now - start_time).to_f
 	end
 
 	private
