@@ -148,11 +148,21 @@ class Giddyup::GitDeploy
 		cmd = "git config -f #{@config_file} " +
 		      "--get-regexp 'environment.#{@env}.#{regex}'"
 
-		@command.
-		  run_command_stdout(cmd).
-		  split("\n").
-		  map { |l| l.split(/\s+/, 2) }.
-		  map { |item|	[item[0].gsub("environment.#{@env}.", ''), item[1]] }
+		begin
+			@command.
+			  run_command_stdout(cmd).
+			  split("\n").
+			  map { |l| l.split(/\s+/, 2) }.
+			  map { |item|	[item[0].gsub("environment.#{@env}.", ''), item[1]] }
+		rescue Giddyup::CommandWrapper::CommandFailed => e
+			if e.status.exitstatus == 1
+				# "Nothing found", OK then
+				return []
+			else
+				raise RuntimeError,
+				      "Failed to get config list environment.#{@env}.#{regex}"
+			end
+		end
 	end
 
 	# Run a command, with all sorts of prettyness.
