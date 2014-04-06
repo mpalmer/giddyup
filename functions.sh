@@ -125,7 +125,7 @@ exec_hook_file() {
 		      NEWREV="${NEWREV}"		\
 		      OLDREV="${OLDREV}"		\
 		      "$hook_file"
-	else
+	elsif [ -e "$hook_file" ]; then
 		cat <<EOF >&2
 WARNING: file $hook_file does not have executable permissions.
 You may want to enable giddyup.autochmodhooks, or fix the permissions.
