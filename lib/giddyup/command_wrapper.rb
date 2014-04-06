@@ -10,11 +10,12 @@ module Giddyup; end
 
 class Giddyup::CommandWrapper
 	class CommandFailed < StandardError
-		attr_reader :status, :output
+		attr_reader :status, :output, :command
 
-		def initialize(status, output)
-			@status = status
-			@output = output
+		def initialize(status, output, command)
+			@status  = status
+			@output  = output
+			@command = command
 			super("Command execution failed")
 		end
 	end
@@ -71,7 +72,7 @@ class Giddyup::CommandWrapper
 		end
 
 		if rv.exitstatus != 0
-			raise CommandFailed.new(rv, output)
+			raise CommandFailed.new(rv, output, cmd)
 		end
 
 		output
