@@ -194,7 +194,7 @@ class Giddyup::GitDeploy
 
 		if @verbose or failed
 			@stdout.puts cmdline
-			@stdout.puts output.map { |l| "#{l[0].to_s.send(l[0] == :stderr ? :cyan : :magenta)}: #{l[1]}" }.join("\n")
+			@stdout.puts output.map { |l| "#{l[0].to_s.send(l[0] == :stderr ? :cyan : :purple)}: #{l[1]}" }.join("\n")
 		end
 
 		return output.select { |l| l[0] == :stdout }.map { |l| l[1] }.join("\n")
