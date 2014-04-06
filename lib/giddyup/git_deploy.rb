@@ -178,23 +178,23 @@ class Giddyup::GitDeploy
 	# as a string.
 	#
 	def run_command(desc, cmdline)
-		@stdout.print "#{desc}..."
+		@stdout.print "[....] #{desc}"
 
 		output = nil
 		failed = false
 		begin
 			output = @command.run_command(cmdline)
 		rescue Giddyup::CommandWrapper::CommandFailed => e
-			@stdout.puts " FAILED.".red
+			@stdout.puts "\x0d["+"FAIL".red+"] #{desc}"
 			output = e.output
 			failed = true
 		else
-			@stdout.puts " OK.".green
+			@stdout.puts "\x0d["+" OK ".green+"] #{desc}"
 		end
 
 		if @verbose or failed
 			@stdout.puts cmdline
-			@stdout.puts output.map { |l| "#{l[0]}: #{l[1]}" }.join("\n")
+			@stdout.puts output.map { |l| "#{l[0].to_s.send(l[0] == :stderr ? :cyan : :magenta)}: #{l[1]}" }.join("\n")
 		end
 
 		return output.select { |l| l[0] == :stdout }.map { |l| l[1] }.join("\n")
