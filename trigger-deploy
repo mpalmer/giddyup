@@ -1,0 +1,150 @@
+#!/bin/bash
+
+# Pull changes from a remote repository and deploy them.
+#
+
+set -e
+set -x
+
+. "$(dirname $(readlink -f $0))/functions.sh"
+
+if [ "$1" = "-v" ]; then
+	VERBOSE="y"
+	shift
+fi
+
+v() {
+	if [ "$VERBOSE" = "y" ]; then
+		echo "$1" >&2
+	fi
+}
+
+vercmp() {
+	local n1="${1}[@]"
+	local n2="${2}[@]"
+	local v1=(${!n1})
+	local v2=(${!n2})
+
+	if [[ ${#v1[@]} < ${#v2[@]} ]]; then
+		local len=${#v2[@]}
+	else
+		local len=${#v1[@]}
+	fi
+
+	for i in $(seq 1 $len); do
+		local cmp1="${v1[$i]}"
+		local cmp2="${v2[$i]}"
+
+		if [ -z "$cmp1" ]; then
+			cmp1="0"
+		fi
+		if [ -z "$cmp2" ]; then
+			cmp2="0"
+		fi
+
+		if [[ "$cmp1" < "$cmp2" ]]; then
+			echo "${v2[0]}"
+			return 0
+		elif [[ "${v1[$i]}" > "${v2[$i]}" ]]; then
+			echo "${v1[0]}"
+			return 0
+		fi
+	done
+}
+
+ROOT="$1"
+
+if ! [[ "$ROOT" =~ ^/ ]]; then
+	# Relative path given; lets get some homedir
+	HOMEDIR="$(getent passwd $(whoami) | cut -d : -f 6)"
+	ROOT="${HOMEDIR}/${ROOT}"
+fi
+
+REPO="${ROOT}/repo"
+
+v "Repository is '${REPO}'"
+
+# Git-specific stuff starts here
+get_config() {
+	local option="$1"
+
+	git config --file "${REPO}/config" --get giddyup.${option} || true
+}
+
+if [ "$(get_config debug)" = "true" ]; then
+	set -x
+fi
+
+if [ "$VERBOSE" = "y" ]; then
+	ORIGIN="$(git --git-dir "${REPO}" remote -v |
+	            grep ^origin | grep '\(fetch\)' |
+	            cut -f 2 | cut -d ' ' -f 1)"
+
+	echo "Origin is '${ORIGIN}'"
+fi
+
+git --git-dir "${REPO}" fetch origin
+
+tagregex="$(get_config tagRegex)"
+
+if [ -z "$tagregex" ]; then
+	v "No tagRegex set; tracking HEAD"
+	REF="FETCH_HEAD"
+else
+	v "tagRegex is '${tagregex}'"
+	REF=""
+	while read tag; do
+		if ! [[ "$tag" =~ $tagregex ]]; then
+			v "$tag doesn't match tagregex"
+			continue
+		fi
+
+		if [ -z "$REF" ]; then
+			REF="$tag"
+			v "First matching tag is ${REF}"
+			continue
+		fi
+
+		this_tag_parts=(${BASH_REMATCH[@]})
+		this_tag_parts[0]="$tag"
+
+		[[ "$REF" =~ $tagregex ]] || true
+		ref_tag_parts=(${BASH_REMATCH[@]})
+		ref_tag_parts[0]="$REF"
+
+		REF="$(vercmp this_tag_parts ref_tag_parts)"
+		v "REF is now ${REF}"
+	done < <(git --git-dir="$REPO" tag)
+
+	v "Best matching tag is ${REF}"
+	if [ -z "$REF" ]; then
+		echo "No tag found matching '${tagregex}'; deploy failed"
+		exit 1
+	fi
+fi
+
+if [ "$(basename $0)" = "check-deploy" ]; then
+	SHA="$(git --git-dir "${REPO}" rev-parse "$REF")"
+	CUR="$(cat "${ROOT}/current/REVISION" || true 2>/dev/null)"
+
+	if [ "$SHA" = "$CUR" ]; then
+		v "Deployment is up-to-date"
+		exit 0
+	else
+		v "Deployment is out-of-date"
+		exit 1
+	fi
+fi
+
+init_env
+
+cd "${RELEASE}"
+
+echo "$(git --git-dir "${REPO}" rev-parse "$REF")" >./REVISION
+git --git-dir "${REPO}" archive --format=tar "$REF" | tar xf -
+
+cd "${ROOT}"
+
+# End git-specific stuff
+
+cycle_release
