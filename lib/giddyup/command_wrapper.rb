@@ -47,7 +47,23 @@ class Giddyup::CommandWrapper
 			fds = [stdout, stderr]
 
 			until fds.empty?
-				a = IO.select(fds)
+				a = IO.select(fds, [], [], 0.1)
+
+				if a.nil?
+					if fds == [stderr]
+						# SSH is an annoying sack of crap.  When using ControlMaster
+						# (multiplexing), the background mux process keeps stderr open,
+						# which means that this loop never ends (because stderr.eof?
+						# is never true).  So, we're using the heuristic that if stdout
+						# is closed (ie it hsa been removed from `fds`) and we've timed
+						# out rather than seeing any further activity on stderr) then
+						# the command execution is done.
+						break
+					else
+						# We had a timeout, but we're still running!
+						next
+					end
+				end
 
 				if a[0].include? stdout
 					if stdout.eof?
