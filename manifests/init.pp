@@ -45,7 +45,7 @@ define giddyup(
 			unless => "/usr/bin/test \"\$(git config -f ${name}/repo/config remote.origin.url)\" = '${origin}'",
 			cwd => "/",
 			user => $user,
-			require => [ Noop["git/installed"], Exec["giddyup create ${name}"], User[$user] ]
+			require => [ Noop["git/packages"], Exec["giddyup create ${name}"], User[$user] ]
 		}
 	}
 }

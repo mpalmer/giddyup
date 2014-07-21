@@ -8,7 +8,7 @@ define giddyup::config($base,
 			unless => "/usr/bin/test \"\$(git config -f ${base}/repo/config giddyup.${var})\" = '${value}'",
 			cwd => "/",
 			user => $user,
-			require => [ Noop["git/installed"], Exec["giddyup create ${base}"], User[$user] ]
+			require => [ Noop["git/packages"], Exec["giddyup create ${base}"], User[$user] ]
 		}
 	}
 }
