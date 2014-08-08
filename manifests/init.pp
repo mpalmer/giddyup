@@ -4,6 +4,7 @@ define giddyup(
 	$keepreleases = undef,
 	$debug        = undef,
 	$origin       = undef,
+	$force_push   = true,
 	$user
 ) {
 	include giddyup::install
@@ -46,6 +47,23 @@ define giddyup(
 			cwd => "/",
 			user => $user,
 			require => [ Noop["git/packages"], Exec["giddyup create ${name}"], User[$user] ]
+		}
+	}
+
+	if !$force_push {
+		exec {
+			"set receive.denyNonFastForwards in ${name}":
+				command => "/usr/bin/git config -f '${name}/repo/config' 'receive.denyNonFastForwards' 'true'",
+				unless  => "/usr/bin/test \"\$(git config -f ${name}/repo/config receive.denyNonFastForwards)\" = 'true'",
+				cwd     => "/",
+				user    => $user,
+				require => [ Noop["git/packages"], Exec["giddyup create ${name}"] ];
+			"set receive.denyDeletes in ${name}":
+				command => "/usr/bin/git config -f '${name}/repo/config' 'receive.denyDeletes' 'true'",
+				unless  => "/usr/bin/test \"\$(git config -f ${name}/repo/config receive.denyDeletes)\" = 'true'",
+				cwd     => "/",
+				user    => $user,
+				require => [ Noop["git/packages"], Exec["giddyup create ${name}"] ];
 		}
 	}
 }
