@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
 	s.add_runtime_dependency "terminal-display-colors"
 
 	s.add_development_dependency 'bundler'
+	s.add_development_dependency 'github-deploy'
 	s.add_development_dependency 'plymouth'
 	s.add_development_dependency 'pry'
 	s.add_development_dependency 'rake'
