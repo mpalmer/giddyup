@@ -9,8 +9,6 @@ rescue Bundler::BundlerError => e
 	exit e.status_code
 end
 
-require 'git-version-bump/rake-tasks'
-
 Bundler::GemHelper.install_tasks
 
 require 'rdoc/task'
