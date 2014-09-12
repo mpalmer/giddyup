@@ -1,7 +1,7 @@
 require 'git-version-bump'
 
 Gem::Specification.new do |s|
-	s.name = "giddyup"
+	s.name = "giddyup-deploy"
 
 	s.version = GVB.version
 	s.date    = GVB.date
