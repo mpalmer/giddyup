@@ -118,12 +118,13 @@ exec_hook_file() {
 	fi
 
 	if [ -x "$hook_file" ]; then
-		env - PATH="${PATH}"	 		\
-		      APP_ENV="${APP_ENV}"		\
-		      ROOT="${ROOT}"			\
-		      RELEASE="${RELEASE}"		\
-		      NEWREV="${NEWREV}"		\
-		      OLDREV="${OLDREV}"		\
+		env - PATH="$PATH"                    \
+		      APP_ENV="$APP_ENV"              \
+		      ROOT="$ROOT"                    \
+		      REPO="$REPO"                    \
+		      RELEASE="$RELEASE"              \
+		      NEWREV="$NEWREV"                \
+		      OLDREV="$OLDREV"                \
 		      "$hook_file"
 	elif [ -e "$hook_file" ]; then
 		cat <<EOF >&2
