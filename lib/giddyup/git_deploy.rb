@@ -51,6 +51,11 @@ class Giddyup::GitDeploy
 			      "No environment given to deploy to"
 		end
 
+		unless valid_environment?
+			raise RuntimeError,
+			      "Unknown or unconfigured environment '#{@env}'"
+		end
+
 		@stdout.puts "Deploying to environment '#{@env}'"
 
 		do_push
@@ -60,6 +65,10 @@ class Giddyup::GitDeploy
 	end
 
 	private
+	def valid_environment?
+		!config_list('(pushTo|target(Enumerator)?)$').empty?
+	end
+
 	def do_push
 		config_item("pushTo", true).each do |t|
 			run_command "Pushing HEAD to remote '#{t}'",
@@ -81,25 +90,23 @@ class Giddyup::GitDeploy
 	# array of strings containing the names of all machines to deploy to.
 	#
 	def targets
-		@targets ||= enumerate_targets
-	end
-
-	def enumerate_targets
-		config_list('target(Enumerator)?$').map do |li|
-			if li[0].downcase == 'target'
-				li[1]
-			elsif li[0].downcase == 'targetenumerator'
-				rv = run_command("Enumerating targets using '#{li[1]}'", li[1]).split(/\s+/)
-				if $?.exitstatus != 0
+		@targets ||= begin
+			config_list('target(Enumerator)?$').map do |li|
+				if li[0].downcase == 'target'
+					li[1]
+				elsif li[0].downcase == 'targetenumerator'
+					rv = run_command("Enumerating targets using '#{li[1]}'", li[1]).split(/\s+/)
+					if $?.exitstatus != 0
+						raise RuntimeError,
+								"Target enumeration failed.  Aborting."
+					end
+					rv
+				else
 					raise RuntimeError,
-					      "Target enumeration failed.  Aborting."
+							"Unknown target expansion option: #{li[0]}"
 				end
-				rv
-			else
-				raise RuntimeError,
-				      "Unknown target expansion option: #{li[0]}"
-			end
-		end.flatten
+			end.flatten
+		end
 	end
 
 	# Get the value(s) of a configuration item from the config file.
