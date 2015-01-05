@@ -185,12 +185,18 @@ class Giddyup::GitDeploy
 	# as a string.
 	#
 	def run_command(desc, cmdline)
-		@stdout.print "[....] #{desc}"
+		in_progress = "[....] #{desc}"
+
+		$stdout.print in_progress
 
 		output = nil
 		failed = false
 		begin
-			output = @command.run_command(cmdline)
+			output = @command.run_command(cmdline) do |fd, l|
+				next unless @verbose
+				@stdout.puts "\x0d\x1b[K#{fd.to_s.send(fd == :stderr ? :cyan : purple)}: #{l}"
+				@stdout.print in_progress
+			end
 		rescue Giddyup::CommandWrapper::CommandFailed => e
 			@stdout.puts "\x0d["+"FAIL".red+"] #{desc}"
 			output = e.output
@@ -199,7 +205,7 @@ class Giddyup::GitDeploy
 			@stdout.puts "\x0d["+" OK ".green+"] #{desc}"
 		end
 
-		if @verbose or failed
+		if failed and !@verbose
 			@stdout.puts cmdline
 			@stdout.puts output.map { |l| "#{l[0].to_s.send(l[0] == :stderr ? :cyan : :purple)}: #{l[1]}" }.join("\n")
 		end

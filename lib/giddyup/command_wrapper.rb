@@ -36,6 +36,9 @@ class Giddyup::CommandWrapper
 	# Giddyup::CommandWrapper::CommandFailed exception is raised containing
 	# the status of the failed command and all output.
 	#
+	# If a block is passed, it will be called for each line of output, and
+	# pass two arguments: `<stream>` and `<line>`.
+	#
 	def self.run_command(cmd)
 		output = []
 		rv = nil
@@ -70,7 +73,9 @@ class Giddyup::CommandWrapper
 						stdout.close
 						fds.delete(stdout)
 					else
-						output << [:stdout, stdout.readline.chomp]
+						l = stdout.readline.chomp
+						yield :stdout, l if block_given?
+						output << [:stdout, l]
 					end
 				end
 
@@ -79,7 +84,9 @@ class Giddyup::CommandWrapper
 						stderr.close
 						fds.delete(stderr)
 					else
-						output << [:stderr, stderr.readline.chomp]
+						l = stderr.readline.chomp
+						yield :stderr, l if block_given?
+						output << [:stderr, l]
 					end
 				end
 			end
