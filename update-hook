@@ -1,27 +1,20 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Automatically deploy a web application by pushing updates to a git
 # repository.
 #
 # For information on usage of this hook, please see the README.md that came
 # with your installation of giddyup.
-# 
+#
 
-set -e
+set -euo pipefail
 
 # Consistent sourcing location for hooks deployed in multiple environments.
-FUNCS="$(dirname $(readlink -f $0))/functions.sh"
-. $FUNCS
+GIDDYUP_HOME="$(dirname "$(readlink -f "$0")")"
+. "${GIDDYUP_HOME}/functions.sh"
 
-REPO="$(dirname $(cd $(dirname "$0"); pwd -P))"
+REPO="$(dirname "$(cd "$(dirname "$0")"; pwd -P)")"
 ROOT="$(dirname "${REPO}")"
-
-# Git-specific stuff starts here
-get_config() {
-	local option="$1"
-	
-	git config --file "${REPO}/config" --get giddyup.${option} || true
-}
 
 if [ "$(get_config debug)" = "true" ]; then
 	set -x
@@ -33,8 +26,19 @@ REF="$1"
 OLDREV="$2"
 NEWREV="$3"
 
-if [ "$REF" != "refs/heads/master" ]; then
-	echo "ERROR: Can only push to master" >&2
+IFS="," read -ra allowed_refs <<< "$(get_config allowedRefs "refs/heads/master,refs/heads/main")"
+readonly allowed_refs
+
+ref_allowed="n"
+
+for aref in "${allowed_refs[@]}"; do
+	if [ "$aref" = "$REF" ]; then
+		ref_allowed="y"
+	fi
+done
+
+if [ "$ref_allowed" = "n" ]; then
+	echo "ERROR: Cannot push to ref $REF (allowed refs: ${allowed_refs[*]})" >&2
 	exit 1
 fi
 
@@ -43,7 +47,5 @@ cd "${RELEASE}"
 git --git-dir "${REPO}" archive --format=tar "${NEWREV}" | tar xf -
 
 cd "${ROOT}"
-
-# End git-specific stuff
 
 cycle_release

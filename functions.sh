@@ -11,6 +11,15 @@
 
 ###########################################################################
 
+# Fetch a git config item from the giddyup section of the repo's config
+get_config() {
+	local option="$1"
+	local default="${2:-}"
+
+
+	git config --file "${REPO}/config" --get "giddyup.${option}" || echo "$default"
+}
+
 # Create a symlink from within the `$RELEASE` into somewhere within
 # `$ROOT/shared`.  The relative path within both `$RELEASE` and
 # `$ROOT/shared` is given by the first (and only) argument to this function.
@@ -52,8 +61,10 @@ share() {
 
 	local src="${RELEASE}/${shareditem}"
 	local dst="${ROOT}/shared/${shareditem}"
-	local srcparent="$(dirname "$src")"
-	local dstparent="$(dirname "$dst")"
+	local srcparent
+	srcparent="$(dirname "$src")"
+	local dstparent
+	dstparent="$(dirname "$dst")"
 
 	if [ ! -d "$dstparent" ]; then
 		mkdir -p "$dstparent"
@@ -89,8 +100,8 @@ share() {
 #
 run_hook() {
 	local hook="$1"
-	local hookdir="$(get_config hookdir)"
-	hookdir="${hookdir:-config/hooks}"
+	local hookdir
+	hookdir="$(get_config hookdir "config/hooks")"
 
 	if [ -d "${RELEASE}/${hookdir}/${hook}" ]; then
 		for f in "${RELEASE}/${hookdir}/${hook}/"*; do
@@ -111,21 +122,23 @@ run_hook() {
 #
 exec_hook_file() {
 	local hook_file="$1"
-	local autochmodhooks="$(get_config autochmodhooks)"
+	local autochmodhooks
+	autochmodhooks="$(get_config autochmodhooks)"
 
 	if [ "${autochmodhooks}" = "true" ]; then
-		chmod +x $hook_file
+		chmod +x "$hook_file"
 	fi
 
 	if [ -x "$hook_file" ]; then
-		env   PATH="$PATH"                    \
-		      APP_ENV="$APP_ENV"              \
-		      ROOT="$ROOT"                    \
-		      REPO="$REPO"                    \
-		      RELEASE="$RELEASE"              \
-		      NEWREV="$NEWREV"                \
-		      OLDREV="$OLDREV"                \
-		      FUNCS="${FUNCS}"                \
+		env   PATH="$PATH"                          \
+		      APP_ENV="$APP_ENV"                    \
+		      ROOT="$ROOT"                          \
+		      REPO="$REPO"                          \
+		      RELEASE="$RELEASE"                    \
+		      NEWREV="$NEWREV"                      \
+		      OLDREV="$OLDREV"                      \
+		      FUNCS="${GIDDYUP_HOME}/functions.sh"  \
+		      REF="$REF"                            \
 		      "$hook_file"
 	elif [ -e "$hook_file" ]; then
 		cat <<EOF >&2
@@ -160,8 +173,8 @@ init_env() {
 # Takes no arguments and returns nothing.
 #
 cycle_release() {
-	local keep_releases="$(get_config keepreleases)"
-	keep_releases="${keep_releases:-5}"
+	local keep_releases
+	keep_releases="$(get_config keepreleases "5")"
 
 	run_hook stop
 
@@ -173,6 +186,6 @@ cycle_release() {
 	# Tidy up old releases
 	if [ "${keep_releases}" != "0" ]; then
 		cd "${ROOT}/releases"
-		ls | sort -r | tail -n +$((${keep_releases}+1)) | xargs rm -rf
+		find . -mindepth 1 -maxdepth 1 -type d | sort -r | tail -n +$((keep_releases + 1)) | xargs rm -rf
 	fi
 }
